@@ -1,36 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AWP — Agent Workforce Platform
 
-## Getting Started
+A curated marketplace where buyers hire AI-powered services for scoped business outcomes.
 
-First, run the development server:
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS + shadcn/ui |
+| Database ORM | Prisma |
+| Database | PostgreSQL (Neon recommended) |
+| Auth | Clerk |
+| Analytics | PostHog |
+| Email | Resend |
+| Payments | Stripe (placeholder) |
+| Deployment | Vercel |
+
+## Folder Structure
+
+```
+src/
+  app/
+    (public)/        # Marketing / marketplace pages (no auth required)
+    (auth)/          # Clerk sign-in / sign-up
+    (buyer)/         # Buyer dashboard, jobs, order form
+    (creator)/       # Creator dashboard, listings, jobs, apply
+    (admin)/         # Admin tools — applications, listings, disputes
+    api/             # All API routes
+  components/
+    ui/              # shadcn/ui components
+    layout/          # Navbar, footer, sidebar
+    marketplace/     # Listing cards, category cards, trust badges
+    buyer/           # Job request form, status timeline, job card
+    creator/         # Listing builder, job workspace
+    admin/           # Application review, listing review, dispute cards
+    shared/          # Page header, empty state, loading spinner, rating stars
+    providers/       # PostHog provider
+  lib/               # prisma, clerk, posthog, stripe, resend, utils
+  types/             # Shared TypeScript DTOs
+  hooks/             # usePostHog
+prisma/
+  schema.prisma      # Full data model
+  seed.ts            # Seed data (badges, sample creator + listings)
+```
+
+## Setup
+
+### 1. Clone and install
+
+```bash
+git clone <repo>
+cd awp
+npm install
+```
+
+### 2. Configure environment
+
+```bash
+cp .env.example .env.local
+```
+
+Fill in all values in `.env.local`:
+
+- `DATABASE_URL` — PostgreSQL connection string (Neon: https://neon.tech)
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` + `CLERK_SECRET_KEY` — Clerk dashboard
+- `NEXT_PUBLIC_POSTHOG_KEY` — PostHog project API key
+- `RESEND_API_KEY` — Resend dashboard
+- `STRIPE_SECRET_KEY` + `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Stripe dashboard
+- `NEXT_PUBLIC_APP_URL` — Your app URL (`http://localhost:3000` for dev)
+
+### 3. Push schema and seed
+
+```bash
+npx prisma db push
+npm run db:seed
+```
+
+### 4. Run dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Key Concepts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### User Roles
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **BUYER** — Default. Can browse marketplace, submit job orders, review deliveries
+- **CREATOR** — Apply via `/creator/apply`. Once approved, can create listings and fulfill jobs
+- **ADMIN** — Set via DB. Access to `/admin` dashboard for reviewing applications, listings, disputes
 
-## Learn More
+### Job Lifecycle
 
-To learn more about Next.js, take a look at the following resources:
+```
+SUBMITTED → ACCEPTED → IN_PROGRESS → DELIVERED → ACCEPTED_BY_BUYER
+                                          ↑
+                              REVISION_REQUESTED ──────────┘
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Creator Onboarding
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Creator fills out application at `/creator/apply`
+2. Admin reviews at `/admin/creators`
+3. On approval, `CreatorProfile` is created and creator can build listings
+4. Listings go through `DRAFT → PENDING_REVIEW → APPROVED` before going live
 
-## Deploy on Vercel
+## Deploy to Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push to GitHub
+2. Import project at vercel.com
+3. Add all environment variables from `.env.example`
+4. Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The app is fully serverless-compatible — Prisma uses Neon PostgreSQL.

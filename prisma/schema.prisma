@@ -1,0 +1,301 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  BUYER
+  CREATOR
+  ADMIN
+}
+
+enum CreatorStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ListingStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  PAUSED
+  SUSPENDED
+}
+
+enum JobStatus {
+  SUBMITTED
+  ACCEPTED
+  IN_PROGRESS
+  DELIVERED
+  REVISION_REQUESTED
+  ACCEPTED_BY_BUYER
+  CANCELLED
+  DISPUTED
+  FAILED
+}
+
+enum ApplicationStatus {
+  SUBMITTED
+  REVIEWING
+  APPROVED
+  REJECTED
+}
+
+enum DisputeStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  REJECTED
+}
+
+enum BadgeType {
+  TRUST
+  PERFORMANCE
+  CURATION
+}
+
+enum MessageSenderType {
+  BUYER
+  CREATOR
+  ADMIN
+  SYSTEM
+}
+
+enum Category {
+  LEAD_RESEARCH
+  MARKET_INTELLIGENCE
+  OUTREACH_PERSONALIZATION
+}
+
+model User {
+  id          String   @id @default(cuid())
+  clerkId     String   @unique
+  email       String   @unique
+  displayName String
+  role        UserRole @default(BUYER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  buyerProfile   BuyerProfile?
+  creatorProfile CreatorProfile?
+}
+
+model BuyerProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  companyName        String?
+  role               String?
+  jobsSubmittedCount Int      @default(0)
+  jobsCompletedCount Int      @default(0)
+  repeatOrdersCount  Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User  @relation(fields: [userId], references: [id])
+  jobs Job[]
+}
+
+model CreatorProfile {
+  id              String        @id @default(cuid())
+  userId          String        @unique
+  displayName     String
+  slug            String        @unique
+  bio             String?
+  avatarUrl       String?
+  location        String?
+  websiteUrl      String?
+  status          CreatorStatus @default(PENDING)
+  verifiedStatus  Boolean       @default(false)
+  ratingAvg       Float         @default(0)
+  ratingCount     Int           @default(0)
+  completionRate  Float         @default(0)
+  onTimeRate      Float         @default(0)
+  repeatBuyerRate Float         @default(0)
+  acceptedJobs    Int           @default(0)
+  cancelledJobs   Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user         User             @relation(fields: [userId], references: [id])
+  listings     ServiceListing[]
+  jobs         Job[]
+  reviews      Review[]
+  badges       CreatorBadge[]
+}
+
+model CreatorApplication {
+  id                String            @id @default(cuid())
+  name              String
+  email             String
+  background        String
+  categoryExpertise Category[]
+  workflowStack     String
+  portfolioLinks    String[]
+  sampleWorkLinks   String[]
+  status            ApplicationStatus @default(SUBMITTED)
+  reviewNotes       String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+}
+
+model ServiceListing {
+  id                    String        @id @default(cuid())
+  creatorId             String
+  title                 String
+  slug                  String        @unique
+  category              Category
+  shortSummary          String
+  description           String
+  deliverableDefinition String
+  inputSchema           Json?
+  outputSchema          Json?
+  turnaroundHours       Int
+  revisionCountIncluded Int           @default(1)
+  priceAmount           Decimal
+  currency              String        @default("USD")
+  sampleOutputUrls      String[]
+  exclusions            String?
+  status                ListingStatus @default(DRAFT)
+  ratingAvg             Float         @default(0)
+  ratingCount           Int           @default(0)
+  completionRate        Float         @default(0)
+  onTimeRate            Float         @default(0)
+  repeatBuyerRate       Float         @default(0)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  creator  CreatorProfile  @relation(fields: [creatorId], references: [id])
+  jobs     Job[]
+  reviews  Review[]
+  badges   ListingBadge[]
+}
+
+model Badge {
+  id          String     @id @default(cuid())
+  code        String     @unique
+  label       String
+  description String
+  badgeType   BadgeType
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+
+  listingBadges ListingBadge[]
+  creatorBadges CreatorBadge[]
+}
+
+model ListingBadge {
+  id         String   @id @default(cuid())
+  listingId  String
+  badgeId    String
+  assignedAt DateTime @default(now())
+
+  listing ServiceListing @relation(fields: [listingId], references: [id])
+  badge   Badge          @relation(fields: [badgeId], references: [id])
+
+  @@unique([listingId, badgeId])
+}
+
+model CreatorBadge {
+  id         String   @id @default(cuid())
+  creatorId  String
+  badgeId    String
+  assignedAt DateTime @default(now())
+
+  creator CreatorProfile @relation(fields: [creatorId], references: [id])
+  badge   Badge          @relation(fields: [badgeId], references: [id])
+
+  @@unique([creatorId, badgeId])
+}
+
+model Job {
+  id                   String    @id @default(cuid())
+  buyerProfileId       String
+  creatorId            String
+  listingId            String
+  status               JobStatus @default(SUBMITTED)
+  briefTitle           String
+  submittedBrief       Json
+  attachments          String[]
+  expectedOutputFormat String?
+  priceAmount          Decimal
+  currency             String    @default("USD")
+  revisionLimit        Int       @default(1)
+  revisionCountUsed    Int       @default(0)
+  submittedAt          DateTime  @default(now())
+  acceptedAt           DateTime?
+  dueAt                DateTime?
+  deliveredAt          DateTime?
+  buyerClosedAt        DateTime?
+  cancelledAt          DateTime?
+  failureReason        String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  buyer      BuyerProfile   @relation(fields: [buyerProfileId], references: [id])
+  creator    CreatorProfile @relation(fields: [creatorId], references: [id])
+  listing    ServiceListing @relation(fields: [listingId], references: [id])
+  deliveries JobDelivery[]
+  messages   JobMessage[]
+  reviews    Review[]
+  disputes   DisputeCase[]
+}
+
+model JobDelivery {
+  id              String   @id @default(cuid())
+  jobId           String
+  deliveryVersion Int      @default(1)
+  summaryNote     String?
+  deliveryPayload Json
+  submittedAt     DateTime @default(now())
+  submittedById   String
+
+  job Job @relation(fields: [jobId], references: [id])
+}
+
+model JobMessage {
+  id          String            @id @default(cuid())
+  jobId       String
+  senderType  MessageSenderType
+  senderId    String?
+  messageText String
+  attachments String[]
+  createdAt   DateTime          @default(now())
+
+  job Job @relation(fields: [jobId], references: [id])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  jobId      String   @unique
+  buyerId    String
+  creatorId  String
+  listingId  String
+  rating     Int
+  reviewText String?
+  createdAt  DateTime @default(now())
+
+  job     Job            @relation(fields: [jobId], references: [id])
+  creator CreatorProfile @relation(fields: [creatorId], references: [id])
+  listing ServiceListing @relation(fields: [listingId], references: [id])
+}
+
+model DisputeCase {
+  id              String        @id @default(cuid())
+  jobId           String
+  openedByType    String
+  reasonCode      String
+  notes           String?
+  status          DisputeStatus @default(OPEN)
+  resolutionNotes String?
+  createdAt       DateTime      @default(now())
+  resolvedAt      DateTime?
+
+  job Job @relation(fields: [jobId], references: [id])
+}
