@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@prisma/client", "prisma", "posthog-node"],
   images: {
     remotePatterns: [
       {
@@ -8,9 +9,6 @@ const nextConfig: NextConfig = {
         hostname: "**",
       },
     ],
-  },
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client", "prisma"],
   },
 };
 

@@ -1,0 +1,31 @@
+// Client-safe: event constants only, no server imports
+export const AWP_EVENTS = {
+  HOMEPAGE_VIEWED: "awp_homepage_viewed",
+  CATEGORY_VIEWED: "awp_category_viewed",
+  LISTING_VIEWED: "awp_listing_viewed",
+  LISTING_SAVED: "awp_listing_saved",
+  JOB_FORM_STARTED: "awp_job_form_started",
+  JOB_FORM_SUBMITTED: "awp_job_form_submitted",
+  JOB_CREATED: "awp_job_created",
+  JOB_ACCEPTED: "awp_job_accepted",
+  JOB_STARTED: "awp_job_started",
+  JOB_DELIVERED: "awp_job_delivered",
+  REVISION_REQUESTED_UI: "awp_revision_requested_ui",
+  DELIVERY_ACCEPTED_UI: "awp_delivery_accepted_ui",
+  REVIEW_SUBMITTED_UI: "awp_review_submitted_ui",
+  CREATOR_APPLY_VIEWED: "awp_creator_apply_viewed",
+  CREATOR_APPLICATION_SUBMITTED: "awp_creator_application_submitted",
+  CREATOR_APPROVED: "awp_creator_approved",
+  CREATOR_REJECTED: "awp_creator_rejected",
+  CREATOR_SUSPENDED: "awp_creator_suspended",
+  LISTING_CREATED: "awp_listing_created",
+  LISTING_SUBMITTED_FOR_REVIEW: "awp_listing_submitted_for_review",
+  LISTING_APPROVED: "awp_listing_approved",
+  LISTING_REJECTED: "awp_listing_rejected",
+  LISTING_SUSPENDED: "awp_listing_suspended",
+  BADGE_ASSIGNED: "awp_badge_assigned",
+  BADGE_REMOVED: "awp_badge_removed",
+  DISPUTE_RESOLVED: "awp_dispute_resolved",
+} as const;
+
+export type AwpEventName = (typeof AWP_EVENTS)[keyof typeof AWP_EVENTS];
