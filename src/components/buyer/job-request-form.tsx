@@ -58,7 +58,7 @@ export function JobRequestForm({ listing }: JobRequestFormProps) {
     }
 
     track(events.JOB_CREATED, { jobId: data.data.id, listingId: listing.id });
-    router.push(`/jobs/${data.data.id}`);
+    router.push(`/buyer/jobs/${data.data.id}`);
   };
 
   return (
