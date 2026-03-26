@@ -64,6 +64,38 @@ export default function HomePage() {
             icon="✉️"
           />
         </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mt-6">
+          <CategoryCard
+            title="ICP Definition"
+            description="Get a precise 1-page Ideal Customer Profile with sample accounts, firmographic filters, and persona briefs. Delivered as a structured document within 48 hours."
+            href="/categories/icp-definition"
+            icon="🧭"
+          />
+          <CategoryCard
+            title="Competitor Intelligence"
+            description="Deep competitive cards covering positioning, pricing, messaging weaknesses, and differentiation opportunities for up to 5 competitors."
+            href="/categories/competitor-intelligence"
+            icon="🔍"
+          />
+          <CategoryCard
+            title="ABM Account Research"
+            description="10 to 25 deep account profiles with decision makers, tech stack, recent triggers, and personalized talking points. Ready to load into your CRM."
+            href="/categories/abm-account-research"
+            icon="🏢"
+          />
+          <CategoryCard
+            title="Prospect List Audit"
+            description="Clean, enrich, and re-score a decaying list before you send. Deduped, verified, and formatted for your email platform."
+            href="/categories/prospect-list-audit"
+            icon="🧹"
+          />
+          <CategoryCard
+            title="Intent Signal Monitoring"
+            description="Weekly report of 20 to 30 accounts showing active buying signals based on job posts, funding rounds, tech changes, and content activity."
+            href="/categories/intent-signal-monitoring"
+            icon="📡"
+          />
+        </div>
       </section>
 
       <Separator />

@@ -20,6 +20,11 @@ const categories = [
   { value: "LEAD_RESEARCH", label: "Lead Research & List Building" },
   { value: "MARKET_INTELLIGENCE", label: "Competitor / Market Intelligence" },
   { value: "OUTREACH_PERSONALIZATION", label: "Outreach Personalization" },
+  { value: "ICP_DEFINITION", label: "ICP Definition" },
+  { value: "COMPETITOR_INTELLIGENCE", label: "Competitor Intelligence" },
+  { value: "ABM_ACCOUNT_RESEARCH", label: "ABM Account Research" },
+  { value: "PROSPECT_LIST_AUDIT", label: "Prospect List Audit" },
+  { value: "INTENT_SIGNAL_MONITORING", label: "Intent Signal Monitoring" },
 ];
 
 export function ListingBuilderForm({ listing, mode }: ListingBuilderFormProps) {

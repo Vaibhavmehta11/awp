@@ -10,12 +10,22 @@ const slugToCategory: Record<string, Category> = {
   "lead-research": Category.LEAD_RESEARCH,
   "market-intelligence": Category.MARKET_INTELLIGENCE,
   "outreach-personalization": Category.OUTREACH_PERSONALIZATION,
+  "icp-definition": Category.ICP_DEFINITION,
+  "competitor-intelligence": Category.COMPETITOR_INTELLIGENCE,
+  "abm-account-research": Category.ABM_ACCOUNT_RESEARCH,
+  "prospect-list-audit": Category.PROSPECT_LIST_AUDIT,
+  "intent-signal-monitoring": Category.INTENT_SIGNAL_MONITORING,
 };
 
 const categoryDescriptions: Record<Category, string> = {
   LEAD_RESEARCH: "Verified, enriched prospect lists built for your exact ICP.",
   MARKET_INTELLIGENCE: "Deep research on competitors, positioning, and market signals.",
   OUTREACH_PERSONALIZATION: "Hyper-personalized cold outreach sequences at scale.",
+  ICP_DEFINITION: "Get a precise 1-page Ideal Customer Profile with sample accounts, firmographic filters, and persona briefs.",
+  COMPETITOR_INTELLIGENCE: "Deep competitive cards covering positioning, pricing, messaging weaknesses, and differentiation opportunities.",
+  ABM_ACCOUNT_RESEARCH: "Deep account profiles with decision makers, tech stack, recent triggers, and personalized talking points.",
+  PROSPECT_LIST_AUDIT: "Clean, enrich, and re-score a decaying list before you send. Deduped, verified, and formatted for your email platform.",
+  INTENT_SIGNAL_MONITORING: "Weekly report of accounts showing active buying signals based on job posts, funding rounds, tech changes, and content activity.",
 };
 
 interface PageProps {

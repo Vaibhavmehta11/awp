@@ -32,6 +32,11 @@ export function categoryLabel(category: string): string {
     LEAD_RESEARCH: "Lead Research & List Building",
     MARKET_INTELLIGENCE: "Competitor / Market Intelligence",
     OUTREACH_PERSONALIZATION: "Outreach Personalization",
+    ICP_DEFINITION: "ICP Definition",
+    COMPETITOR_INTELLIGENCE: "Competitor Intelligence",
+    ABM_ACCOUNT_RESEARCH: "ABM Account Research",
+    PROSPECT_LIST_AUDIT: "Prospect List Audit",
+    INTENT_SIGNAL_MONITORING: "Intent Signal Monitoring",
   };
   return labels[category] ?? category;
 }
