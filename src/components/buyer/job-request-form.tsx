@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,7 +15,6 @@ interface JobRequestFormProps {
 }
 
 export function JobRequestForm({ listing }: JobRequestFormProps) {
-  const router = useRouter();
   const { track, events } = usePostHog();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,30 +33,42 @@ export function JobRequestForm({ listing }: JobRequestFormProps) {
 
     track(events.JOB_FORM_SUBMITTED, { listingId: listing.id, category: listing.category });
 
-    const res = await fetch("/api/jobs", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        listingId: listing.id,
-        briefTitle: formData.briefTitle,
-        submittedBrief: {
-          details: formData.briefDetails,
-          targetAudience: formData.targetAudience,
-        },
-        expectedOutputFormat: formData.outputFormat || undefined,
-      }),
-    });
+    try {
+      // Create Stripe Checkout Session — job is saved as pending until payment confirms
+      const res = await fetch("/api/stripe/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listingId: listing.id,
+          briefTitle: formData.briefTitle,
+          submittedBrief: {
+            details: formData.briefDetails,
+            targetAudience: formData.targetAudience,
+          },
+          expectedOutputFormat: formData.outputFormat || undefined,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      setError(data.error ?? "Failed to submit job");
+      if (!res.ok) {
+        setError(data.error ?? "Failed to initiate checkout");
+        setLoading(false);
+        return;
+      }
+
+      // Redirect to Stripe hosted checkout page
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return; // Stay in loading state while redirecting
+      }
+
+      setError("Could not redirect to payment. Please try again.");
       setLoading(false);
-      return;
+    } catch {
+      setError("Network error. Please try again.");
+      setLoading(false);
     }
-
-    track(events.JOB_CREATED, { jobId: data.data.id, listingId: listing.id });
-    router.push(`/buyer/jobs/${data.data.id}`);
   };
 
   return (
@@ -119,10 +129,10 @@ export function JobRequestForm({ listing }: JobRequestFormProps) {
           )}
 
           <Button type="submit" className="w-full" size="lg" disabled={loading}>
-            {loading ? "Submitting..." : `Submit Job · ${formatCurrency(listing.priceAmount, listing.currency)}`}
+            {loading ? "Redirecting to payment..." : `Pay & Submit · ${formatCurrency(listing.priceAmount, listing.currency)}`}
           </Button>
           <p className="text-xs text-center text-muted-foreground">
-            You won&apos;t be charged until the creator accepts your job.
+            You will be taken to Stripe&apos;s secure payment page. Your job is confirmed after payment.
           </p>
         </form>
       </CardContent>

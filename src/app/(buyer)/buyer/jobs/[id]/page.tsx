@@ -6,19 +6,21 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { DeliveryActions } from "@/components/buyer/delivery-actions";
+import { CheckCircle2 } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ payment?: string }>;
 }
 
-export default async function BuyerJobDetailPage({ params }: PageProps) {
+export default async function BuyerJobDetailPage({ params, searchParams }: PageProps) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
   const { id } = await params;
+  const { payment } = await searchParams;
 
   const user = await prisma.user.findUnique({
     where: { clerkId: userId },
@@ -40,14 +42,31 @@ export default async function BuyerJobDetailPage({ params }: PageProps) {
   if (!job) notFound();
 
   const latestDelivery = job.deliveries[0] ?? null;
+  const paymentSuccess = payment === "success";
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      {/* Payment success banner */}
+      {paymentSuccess && (
+        <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-green-800">
+          <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-500" />
+          <div>
+            <p className="font-medium text-sm">Payment confirmed!</p>
+            <p className="text-xs text-green-700">Your job has been submitted. The creator will review and accept shortly.</p>
+          </div>
+        </div>
+      )}
+
       <PageHeader
         title={job.briefTitle}
         description={`${job.listing.title} · ${formatCurrency(job.priceAmount.toString(), job.currency)}`}
       >
         <Badge>{job.status.replace(/_/g, " ")}</Badge>
+        {job.paymentStatus === "paid" && (
+          <Badge variant="outline" className="text-green-700 border-green-300">
+            Paid
+          </Badge>
+        )}
       </PageHeader>
 
       <JobStatusTimeline status={job.status} />

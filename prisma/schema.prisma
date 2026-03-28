@@ -242,6 +242,8 @@ model Job {
   failureReason        String?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
+  stripeSessionId  String?  // Stripe Checkout Session ID
+  paymentStatus    String?  @default("pending") // pending | paid | failed
 
   buyer      BuyerProfile   @relation(fields: [buyerProfileId], references: [id])
   creator    CreatorProfile @relation(fields: [creatorId], references: [id])
